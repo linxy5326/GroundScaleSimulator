@@ -18,42 +18,46 @@ namespace xabg.GroundScaleSimulator
         private static readonly ToledoDataProtocolConfig _defaultConfig;
 
         public string ModeName { get; set; }
-
         public DateTime? UpdateTime { get; set; }
+
         public static ToledoDataProtocolConfig DefaultConfig { get => _defaultConfig; }
 
         static ToledoDataProtocolConfig()
         {
             if (null == _defaultConfig)
             {
-                _defaultConfig = new ToledoDataProtocolConfig();
-                _defaultConfig.UpdateTime = null;
-                _defaultConfig.SerialPortSetting = new SerialSetting();
-                _defaultConfig.OutputModeSetting = new DataOutputConfig
+                _defaultConfig = new ToledoDataProtocolConfig
                 {
-                    InOutput = InputOutputMode.StandardOutput,
-                    ModeScene = WeightModeScene.UpToPound,
-                    PeakValue = 48500,
-                    StartValue = 0,
-                    StepLength = 20
+                    UpdateTime = null,
+                    SerialPortSetting = new SerialSetting(),
+                    OutputModeSetting = new DataOutputConfig
+                    {
+                        InOutput = InputOutputMode.StandardOutput,
+                        ModeScene = WeightModeScene.UpToPound,
+                        PeakValue = 48500,
+                        StartValue = 0,
+                        StepLength = 20
+                    },
+
+                    // 标准
+                    Standard = new StateWord
+                    {
+                        SWA = 0x31,
+                        SWB = 0x30,
+                        SWC = 0x20
+                    },
+
+                    //扩展
+                    Extend = new StateWord(true)
+                    {
+                        SWA = 0x32,
+                        SWB = 0x20,
+                        SWC = 0x20,
+                        SWD = 0x20
+                    },
+
+                    ModeName = "IND880"
                 };
-
-                // 标准
-                _defaultConfig.Standard = new StateWord
-                {
-                    SWA = 0x31,
-                    SWB = 0x30,
-                    SWC = 0x20
-                };
-
-                //扩展
-                _defaultConfig.Extend = new StateWord(true);
-                _defaultConfig.Extend.SWA = 0x32;
-                _defaultConfig.Extend.SWB = 0x20;
-                _defaultConfig.Extend.SWC = 0x20;
-                _defaultConfig.Extend.SWD = 0x20;
-
-                _defaultConfig.ModeName = "IND880";
 
             }
         }
@@ -65,8 +69,6 @@ namespace xabg.GroundScaleSimulator
             OutputModeSetting = new DataOutputConfig();
             ModeName = "";
             UpdateTime = DateTime.Now;
-
-
         }
 
     }
@@ -277,7 +279,15 @@ namespace xabg.GroundScaleSimulator
         /// <summary>
         /// 重量数据
         /// </summary>
-        WeightValue
+        WeightValue,
+        /// <summary>
+        /// SICS Level 0 格式
+        /// </summary>
+        SICSLevel0,
+        /// <summary>
+        /// 应答协议格式
+        /// </summary>
+        Answering
 
     }
 

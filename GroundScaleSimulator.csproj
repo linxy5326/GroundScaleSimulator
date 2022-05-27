@@ -18,9 +18,11 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -77,14 +79,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ByteConvert.cs" />
-    <Compile Include="Controls\Led.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\UserLantern.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\UserLantern.designer.cs">
-      <DependentUpon>UserLantern.cs</DependentUpon>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="XK3190A9P.cs" />
     <Compile Include="Comm.cs" />
@@ -112,17 +110,25 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerialHelper.cs" />
     <Compile Include="ToledoDataProtocolConfig.cs" />
+    <Compile Include="XK3190_CS6.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Controls\UserLantern.resx">
-      <DependentUpon>UserLantern.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="FormMessageBox.resx">
       <DependentUpon>FormMessageBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormSimulator.resx">
       <DependentUpon>FormSimulator.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\xabg.Form.Controls\xabg.Controls.csproj">
+      <Project>{aad0a6c1-c240-41c8-8df7-d44746a0b3ec}</Project>
+      <Name>xabg.Controls</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

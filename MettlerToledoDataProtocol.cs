@@ -14,8 +14,8 @@ namespace xabg.GroundScaleSimulator
     {
         //起始标志 02 1个字节。
         private const byte STX = 0x02;
-        private byte SOH = 0x01;
-        private byte ADR = 0x31;
+        private readonly byte SOH = 0x01;
+        private readonly byte ADR = 0x31;
 
         //结束标志 0D 1个字节
         private byte CR = 0x0D;
@@ -43,9 +43,7 @@ namespace xabg.GroundScaleSimulator
         private byte _SWC = 0x00;
 
         //扩展格式的状态字 SB4 
-#pragma warning disable CS0414 // 字段“MettlerToledoDataProtocol._SWD”已被赋值，但从未使用过它的值
         private byte _SWD = 0x00;
-#pragma warning restore CS0414 // 字段“MettlerToledoDataProtocol._SWD”已被赋值，但从未使用过它的值
 
         private byte[] weightData = new byte[6];
         private byte[] tareData = new byte[6];
@@ -87,7 +85,7 @@ namespace xabg.GroundScaleSimulator
         /// </remarks>
         public void DataParsing(byte[] dataBuffer)
         {
-            int sIndex = 0, tIndex = dataBuffer.Length - 1;
+            int sIndex = 0;
             int length = dataBuffer.Length;
             if (dataBuffer[0] != STX)
             {
@@ -100,7 +98,7 @@ namespace xabg.GroundScaleSimulator
                     _tare = 0;
                     return;
                 }
-                tIndex = Array.IndexOf(dataBuffer, CR, sIndex);
+             int   tIndex = Array.IndexOf(dataBuffer, CR, sIndex);
                 length = tIndex - sIndex + 1;
 
                 //如果报文长度不对，放弃本次解析，退出方法。
@@ -147,8 +145,8 @@ namespace xabg.GroundScaleSimulator
                 //转成负数
                 if (SWBit == 2)
                 {
-                    _grossWeight = _grossWeight * -1;
-                    _tare = _tare * -1;
+                    _grossWeight *= -1;
+                    _tare *= -1;
                 }
 
 
@@ -168,7 +166,6 @@ namespace xabg.GroundScaleSimulator
             }
 
             //清除数据
-            tempBuffer = null;
             // Array.Clear(weightData, 0, weightData.Length);
             // Array.Clear(tareData, 0, tareData.Length);
         }
@@ -176,10 +173,7 @@ namespace xabg.GroundScaleSimulator
         //数据包解析完成后
         private void OnParsingComplete(WeightParsingCompleteArgs args)
         {
-            if (null != ParsingComplete)
-            {
-                ParsingComplete(this, args);
-            }
+            ParsingComplete?.Invoke(this, args);
         }
 
 
@@ -199,6 +193,9 @@ namespace xabg.GroundScaleSimulator
                     break;
                 case InputOutputMode.WeightValue:
                     WeightValue();
+                    break;
+                case InputOutputMode.SICSLevel0:
+                    SICSLevel0Output(config);
                     break;
             }
         }
@@ -278,6 +275,26 @@ namespace xabg.GroundScaleSimulator
             Array.Reverse(weight);
             Array.Copy(weight, 0, _protocolData, 1, weight.Length);
             _protocolData[WEIGHTCOUNTEXTEND - 1] = 0x3D;
+        }
+
+        /// <summary>
+        /// SICS 格式 级别 0
+        /// </summary>
+        /// <param name="config"></param>
+        private void SICSLevel0Output(ToledoDataProtocolConfig config)
+        {
+            if (config is null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            _protocolData = new byte[] { 0x53,0x20,0x53,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x6B,0x67,0x0D,0x0A};
+            System.Text.ASCIIEncoding asciiEncoding = new System.Text.ASCIIEncoding();
+            string strWeight = _grossWeight.ToString().PadLeft(WEIGHTCOUNT, ' ');
+            byte[] weight= asciiEncoding.GetBytes(strWeight);
+
+            Array.Copy(weight, 0, _protocolData, 8, weight.Length);
+
         }
     }
 

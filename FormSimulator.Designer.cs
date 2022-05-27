@@ -55,6 +55,8 @@
             this.PnlMain = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.GbxOutPut = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.CbxTruckScalesPro = new System.Windows.Forms.ComboBox();
             this.BtnSaveSetting = new System.Windows.Forms.Button();
             this.BtnResetDefault = new System.Windows.Forms.Button();
             this.LblPeakValue = new System.Windows.Forms.Label();
@@ -142,8 +144,6 @@
             this.PnlRight = new System.Windows.Forms.Panel();
             this.BtnOpenRightPanel = new System.Windows.Forms.Button();
             this.PnlLeft = new System.Windows.Forms.Panel();
-            this.CbxTruckScalesPro = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.PnlSerialParameterSet.SuspendLayout();
             this.panel4.SuspendLayout();
             this.GbxConsole.SuspendLayout();
@@ -402,7 +402,7 @@
             this.LledWeightValue.BackColor_2 = System.Drawing.Color.DimGray;
             this.LledWeightValue.BevelRate = 0.5F;
             this.LledWeightValue.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.LledWeightValue.FadedColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.LledWeightValue.FadedColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
             this.LledWeightValue.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.LledWeightValue.HighlightOpaque = ((byte)(50));
             this.LledWeightValue.Location = new System.Drawing.Point(7, 42);
@@ -480,9 +480,30 @@
             this.GbxOutPut.TabStop = false;
             this.GbxOutPut.Text = "输出";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(58, 34);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(65, 12);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "地磅协议：";
+            // 
+            // CbxTruckScalesPro
+            // 
+            this.CbxTruckScalesPro.FormattingEnabled = true;
+            this.CbxTruckScalesPro.Items.AddRange(new object[] {
+            "XK3190-A9+",
+            "XK3190-CS6",
+            "INDT880"});
+            this.CbxTruckScalesPro.Location = new System.Drawing.Point(128, 31);
+            this.CbxTruckScalesPro.Name = "CbxTruckScalesPro";
+            this.CbxTruckScalesPro.Size = new System.Drawing.Size(168, 20);
+            this.CbxTruckScalesPro.TabIndex = 4;
+            // 
             // BtnSaveSetting
             // 
-            this.BtnSaveSetting.Location = new System.Drawing.Point(80, 249);
+            this.BtnSaveSetting.Location = new System.Drawing.Point(60, 283);
             this.BtnSaveSetting.Name = "BtnSaveSetting";
             this.BtnSaveSetting.Size = new System.Drawing.Size(89, 32);
             this.BtnSaveSetting.TabIndex = 3;
@@ -492,7 +513,7 @@
             // 
             // BtnResetDefault
             // 
-            this.BtnResetDefault.Location = new System.Drawing.Point(181, 249);
+            this.BtnResetDefault.Location = new System.Drawing.Point(175, 283);
             this.BtnResetDefault.Name = "BtnResetDefault";
             this.BtnResetDefault.Size = new System.Drawing.Size(89, 32);
             this.BtnResetDefault.TabIndex = 3;
@@ -503,7 +524,7 @@
             // LblPeakValue
             // 
             this.LblPeakValue.AutoSize = true;
-            this.LblPeakValue.Location = new System.Drawing.Point(102, 119);
+            this.LblPeakValue.Location = new System.Drawing.Point(82, 153);
             this.LblPeakValue.Name = "LblPeakValue";
             this.LblPeakValue.Size = new System.Drawing.Size(41, 12);
             this.LblPeakValue.TabIndex = 2;
@@ -512,7 +533,7 @@
             // LblRangeValue
             // 
             this.LblRangeValue.AutoSize = true;
-            this.LblRangeValue.Location = new System.Drawing.Point(90, 207);
+            this.LblRangeValue.Location = new System.Drawing.Point(70, 241);
             this.LblRangeValue.Name = "LblRangeValue";
             this.LblRangeValue.Size = new System.Drawing.Size(53, 12);
             this.LblRangeValue.TabIndex = 2;
@@ -521,7 +542,7 @@
             // lblFrequency
             // 
             this.lblFrequency.AutoSize = true;
-            this.lblFrequency.Location = new System.Drawing.Point(66, 181);
+            this.lblFrequency.Location = new System.Drawing.Point(46, 215);
             this.lblFrequency.Name = "lblFrequency";
             this.lblFrequency.Size = new System.Drawing.Size(77, 12);
             this.lblFrequency.TabIndex = 2;
@@ -530,7 +551,7 @@
             // LblStart
             // 
             this.LblStart.AutoSize = true;
-            this.LblStart.Location = new System.Drawing.Point(90, 150);
+            this.LblStart.Location = new System.Drawing.Point(70, 184);
             this.LblStart.Name = "LblStart";
             this.LblStart.Size = new System.Drawing.Size(53, 12);
             this.LblStart.TabIndex = 2;
@@ -539,7 +560,7 @@
             // LblScene
             // 
             this.LblScene.AutoSize = true;
-            this.LblScene.Location = new System.Drawing.Point(78, 58);
+            this.LblScene.Location = new System.Drawing.Point(58, 92);
             this.LblScene.Name = "LblScene";
             this.LblScene.Size = new System.Drawing.Size(65, 12);
             this.LblScene.TabIndex = 2;
@@ -548,7 +569,7 @@
             // LblStepLength
             // 
             this.LblStepLength.AutoSize = true;
-            this.LblStepLength.Location = new System.Drawing.Point(78, 88);
+            this.LblStepLength.Location = new System.Drawing.Point(58, 122);
             this.LblStepLength.Name = "LblStepLength";
             this.LblStepLength.Size = new System.Drawing.Size(65, 12);
             this.LblStepLength.TabIndex = 2;
@@ -557,7 +578,7 @@
             // LblOutputMode
             // 
             this.LblOutputMode.AutoSize = true;
-            this.LblOutputMode.Location = new System.Drawing.Point(54, 28);
+            this.LblOutputMode.Location = new System.Drawing.Point(34, 62);
             this.LblOutputMode.Name = "LblOutputMode";
             this.LblOutputMode.Size = new System.Drawing.Size(89, 12);
             this.LblOutputMode.TabIndex = 2;
@@ -565,50 +586,50 @@
             // 
             // TbxPeakValue
             // 
-            this.TbxPeakValue.Location = new System.Drawing.Point(149, 115);
+            this.TbxPeakValue.Location = new System.Drawing.Point(129, 149);
             this.TbxPeakValue.MaxLength = 9;
             this.TbxPeakValue.Name = "TbxPeakValue";
-            this.TbxPeakValue.Size = new System.Drawing.Size(121, 21);
+            this.TbxPeakValue.Size = new System.Drawing.Size(167, 21);
             this.TbxPeakValue.TabIndex = 1;
             this.TbxPeakValue.Text = "49000";
             this.TbxPeakValue.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TbxRangeValue_KeyPress);
             // 
             // TbxRangeValue
             // 
-            this.TbxRangeValue.Location = new System.Drawing.Point(148, 204);
+            this.TbxRangeValue.Location = new System.Drawing.Point(128, 238);
             this.TbxRangeValue.MaxLength = 5;
             this.TbxRangeValue.Name = "TbxRangeValue";
-            this.TbxRangeValue.Size = new System.Drawing.Size(121, 21);
+            this.TbxRangeValue.Size = new System.Drawing.Size(167, 21);
             this.TbxRangeValue.TabIndex = 1;
             this.TbxRangeValue.Text = "20";
             this.TbxRangeValue.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TbxRangeValue_KeyPress);
             // 
             // tbxFrequency
             // 
-            this.tbxFrequency.Location = new System.Drawing.Point(148, 177);
+            this.tbxFrequency.Location = new System.Drawing.Point(128, 211);
             this.tbxFrequency.MaxLength = 5;
             this.tbxFrequency.Name = "tbxFrequency";
-            this.tbxFrequency.Size = new System.Drawing.Size(121, 21);
+            this.tbxFrequency.Size = new System.Drawing.Size(167, 21);
             this.tbxFrequency.TabIndex = 1;
             this.tbxFrequency.Text = "100";
             this.tbxFrequency.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TbxRangeValue_KeyPress);
             // 
             // TbxStartValue
             // 
-            this.TbxStartValue.Location = new System.Drawing.Point(149, 146);
+            this.TbxStartValue.Location = new System.Drawing.Point(129, 180);
             this.TbxStartValue.MaxLength = 9;
             this.TbxStartValue.Name = "TbxStartValue";
-            this.TbxStartValue.Size = new System.Drawing.Size(121, 21);
+            this.TbxStartValue.Size = new System.Drawing.Size(167, 21);
             this.TbxStartValue.TabIndex = 1;
             this.TbxStartValue.Text = "0";
             this.TbxStartValue.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TbxRangeValue_KeyPress);
             // 
             // TbxStepLength
             // 
-            this.TbxStepLength.Location = new System.Drawing.Point(149, 84);
+            this.TbxStepLength.Location = new System.Drawing.Point(129, 118);
             this.TbxStepLength.MaxLength = 4;
             this.TbxStepLength.Name = "TbxStepLength";
-            this.TbxStepLength.Size = new System.Drawing.Size(121, 21);
+            this.TbxStepLength.Size = new System.Drawing.Size(167, 21);
             this.TbxStepLength.TabIndex = 1;
             this.TbxStepLength.Text = "280";
             this.TbxStepLength.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TbxRangeValue_KeyPress);
@@ -622,9 +643,9 @@
             "模拟上下磅",
             "输入重量",
             "模拟装车"});
-            this.CbxScene.Location = new System.Drawing.Point(149, 54);
+            this.CbxScene.Location = new System.Drawing.Point(129, 88);
             this.CbxScene.Name = "CbxScene";
-            this.CbxScene.Size = new System.Drawing.Size(121, 20);
+            this.CbxScene.Size = new System.Drawing.Size(167, 20);
             this.CbxScene.TabIndex = 0;
             this.CbxScene.Text = "模拟上磅";
             // 
@@ -636,10 +657,11 @@
             "扩展连续输出",
             "标准格式输入",
             "扩展格式输入",
-            "连续输出1"});
-            this.CbxOutputMode.Location = new System.Drawing.Point(149, 24);
+            "连续输出1",
+            "SICS Level0"});
+            this.CbxOutputMode.Location = new System.Drawing.Point(129, 58);
             this.CbxOutputMode.Name = "CbxOutputMode";
-            this.CbxOutputMode.Size = new System.Drawing.Size(121, 20);
+            this.CbxOutputMode.Size = new System.Drawing.Size(167, 20);
             this.CbxOutputMode.TabIndex = 0;
             this.CbxOutputMode.Text = "标准连续输出";
             // 
@@ -1498,26 +1520,6 @@
             this.PnlLeft.Name = "PnlLeft";
             this.PnlLeft.Size = new System.Drawing.Size(868, 742);
             this.PnlLeft.TabIndex = 3;
-            // 
-            // CbxTruckScalesPro
-            // 
-            this.CbxTruckScalesPro.FormattingEnabled = true;
-            this.CbxTruckScalesPro.Items.AddRange(new object[] {
-            "XK3190-A9+",
-            "INDT880"});
-            this.CbxTruckScalesPro.Location = new System.Drawing.Point(88, 308);
-            this.CbxTruckScalesPro.Name = "CbxTruckScalesPro";
-            this.CbxTruckScalesPro.Size = new System.Drawing.Size(181, 20);
-            this.CbxTruckScalesPro.TabIndex = 4;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(18, 311);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(65, 12);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "地磅协议：";
             // 
             // FormSimulator
             // 

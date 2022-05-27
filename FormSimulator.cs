@@ -9,28 +9,30 @@ namespace xabg.GroundScaleSimulator
 {
     public partial class FormSimulator : MetroForm
     {
-        FormMessageBox fmb;
-        SerialPort _ports;
+        private FormMessageBox fmb;
+        private SerialPort _ports;
         //模拟器开机状态
         private bool _isStart;
         private string key_value;
         //模拟数据计数器
-        int timerIndex = 0;
+        private int timerIndex = 0;
         //随机数
-        Random ran;
-
-        private System.Windows.Forms.Timer _twinkleTimer;
-        private System.Windows.Forms.Timer _simulateTimer;
-        private System.Windows.Forms.Timer _createDataTimer;
-
+        private Random ran;
+        private Timer _twinkleTimer;
+        private Timer _simulateTimer;
+        private Timer _createDataTimer;
         //配置
         private ToledoDataProtocolConfig _config;
         //数据报文处理类
-        MettlerToledoDataProtocol _dataProtocol;
+        private MettlerToledoDataProtocol _dataProtocol;
 
+        //XK3190A9P
         private XK3190DataProtocolConfig _xkConfig;
-
         private XK3190A9P _xkDataProtocol;
+
+        //XK3190-CS6
+        private XK3190_CS6Config _xkCS6Config;
+        private XK3190_CS6 _xkCS6Protocol;
 
         public FormSimulator()
         {
@@ -38,23 +40,30 @@ namespace xabg.GroundScaleSimulator
             Init_SateWord();
             Init_SerialPortConfigItem();
 
-            _twinkleTimer = new Timer();
-            _twinkleTimer.Enabled = true;
-            _twinkleTimer.Interval = 500;
-            _twinkleTimer.Tick += _twinkleTimer_Tick;
+            _twinkleTimer = new Timer
+            {
+                Enabled = true,
+                Interval = 500
+            };
+            _twinkleTimer.Tick += TwinkleTimer_Tick;
 
-            _simulateTimer = new Timer();
-            _simulateTimer.Enabled = false;
-            _simulateTimer.Interval = 100;
-            _simulateTimer.Tick += _simulateTimer_Tick;
+            _simulateTimer = new Timer
+            {
+                Enabled = false,
+                Interval = 100
+            };
+            _simulateTimer.Tick += SimulateTimer_Tick;
 
             _createDataTimer = new Timer();
-            _createDataTimer.Tick += _createDataTimer_Tick;
+            _createDataTimer.Tick += CreateDataTimer_Tick;
 
             this.FormBorderStyle = FormBorderStyle.None;
+
+            _config = ToledoDataProtocolConfig.DefaultConfig;
+            _xkCS6Config = XK3190_CS6Config.DefaultConfig;
         }
 
-        private void _simulateTimer_Tick(object sender, EventArgs e)
+        private void SimulateTimer_Tick(object sender, EventArgs e)
         {
             //模拟连续输出
             if (_ports.IsOpen)
@@ -62,25 +71,36 @@ namespace xabg.GroundScaleSimulator
                 switch (CbxTruckScalesPro.Text)
                 {
                     case "XK3190-A9+":
-                        _ports.Write(_xkDataProtocol.ProtocolData, 0, _xkDataProtocol.ProtocolData.Length);
-                        if (null != fmb)
-                            fmb.SetMessageText(_xkDataProtocol.ProtocolDataHex);
+                        if (null != _xkDataProtocol)
+                        {
+                            _ports.Write(_xkDataProtocol.ProtocolData, 0, _xkDataProtocol.ProtocolData.Length);
+                            if (null != fmb)
+                                fmb.SetMessageText(_xkDataProtocol.ProtocolDataHex);
+                        }
                         break;
                     case "INDT880":
-                        _ports.Write(_dataProtocol.ProtocolData, 0, _dataProtocol.ProtocolData.Length);
-                        if (null != fmb)
-                            fmb.SetMessageText(_dataProtocol.ProtocolDataHex);
+                        if (null != _xkDataProtocol)
+                        {
+                            _ports.Write(_dataProtocol.ProtocolData, 0, _dataProtocol.ProtocolData.Length);
+                            if (null != fmb)
+                                fmb.SetMessageText(_dataProtocol.ProtocolDataHex);
+                        }
+                        break;
+                    case "XK3190-CS6":
+                        if (null != _xkCS6Protocol)
+                        {
+                            _ports.Write(_xkCS6Protocol.ProtocolData, 0, _xkCS6Protocol.ProtocolData.Length);
+                            if (null != fmb)
+                                fmb.SetMessageText(_xkCS6Protocol.ProtocolDataHex);
+                        }
                         break;
                     default:
                         break;
                 }
-
-
             }
-
         }
 
-        private void _twinkleTimer_Tick(object sender, EventArgs e)
+        private void TwinkleTimer_Tick(object sender, EventArgs e)
         {
             SetDataDenote(Color.Red, true);
         }
@@ -94,6 +114,8 @@ namespace xabg.GroundScaleSimulator
             _dataProtocol = new MettlerToledoDataProtocol();
 
             _xkDataProtocol = new XK3190A9P();
+
+            _xkCS6Protocol = new XK3190_CS6();
 
             PowerOff();
         }
@@ -119,11 +141,9 @@ namespace xabg.GroundScaleSimulator
                 CbxCom.Text = "COM1";
             }
             _ports.PortName = CbxCom.Text;
-            int baudRate;
-            int.TryParse(CbxBaudrate.Text, out baudRate);
+            int.TryParse(CbxBaudrate.Text, out int baudRate);
             _ports.BaudRate = baudRate;
-            int dataBits;
-            int.TryParse(CbxDatabits.Text, out dataBits);
+            int.TryParse(CbxDatabits.Text, out int dataBits);
             _ports.DataBits = dataBits;
             _ports.Parity = (Parity)Enum.Parse(typeof(Parity), CbxParity.Text);
             _ports.StopBits = (StopBits)Enum.Parse(typeof(StopBits), CbxStopBit.Text);
@@ -214,7 +234,7 @@ namespace xabg.GroundScaleSimulator
             {
                 //打开右侧面板
                 Point location = this.Location;
-                location.X = location.X + this.DisplayRectangle.Width + 2;
+                location.X = location.X + this.Width + 2;
                 fmb.Location = location;
                 fmb.Height = this.Height;
 
@@ -235,7 +255,7 @@ namespace xabg.GroundScaleSimulator
             if (null != fmb)
             {
                 Point location = this.Location;
-                location.X = location.X + this.DisplayRectangle.Width + 2;
+                location.X = location.X + this.Width + 2;
                 fmb.Location = location;
             }
         }
@@ -350,7 +370,7 @@ namespace xabg.GroundScaleSimulator
         int weightScaler = 20;
 
 
-        private void _createDataTimer_Tick(object sender, EventArgs e)
+        private void CreateDataTimer_Tick(object sender, EventArgs e)
         {
 
             switch (CbxTruckScalesPro.Text)
@@ -361,6 +381,9 @@ namespace xabg.GroundScaleSimulator
                 case "INDT880":
                     ToledoT880();
                     break;
+                case "XK3190-CS6":
+                    XK3190_CS6();
+                    break;
                 default:
                     break;
             }
@@ -369,6 +392,8 @@ namespace xabg.GroundScaleSimulator
 
         private void XK3190A9P()
         {
+            if (null == _xkConfig) return;
+
             int startValue = _xkConfig.OutputModeSetting.StartValue;
             int stepValue = _xkConfig.OutputModeSetting.StepLength;
             int peakValue = _xkConfig.OutputModeSetting.PeakValue;
@@ -382,16 +407,15 @@ namespace xabg.GroundScaleSimulator
             //改变步长值
             if (CbxScene.Text == "模拟装车")
             {
-                int RangeValue;
-                int.TryParse(TbxRangeValue.Text.Trim(), out RangeValue);
+                int.TryParse(TbxRangeValue.Text.Trim(), out int RangeValue);
 
                 int.TryParse(TbxStepLength.Text.Trim(), out stepValue);
                 //生成随机步长
                 int RandomStep = ran.Next(1, RangeValue) * 20;
-                stepValue = stepValue + RandomStep;
+                stepValue += RandomStep;
 
                 //递增
-                currentValue = currentValue + stepValue;
+                currentValue += stepValue;
 
                 if (currentValue >= peakValue)
                 {
@@ -407,7 +431,7 @@ namespace xabg.GroundScaleSimulator
             if (CbxScene.Text == "模拟上磅")
             {
                 //递增
-                currentValue = currentValue + stepValue;
+                currentValue += stepValue;
 
                 if (currentValue >= peakValue)
                 {
@@ -420,7 +444,7 @@ namespace xabg.GroundScaleSimulator
                 //递减
                 if (startValue > 0 && currentValue > 0)
                 {
-                    currentValue = currentValue - stepValue;
+                    currentValue -= stepValue;
                 }
                 else
                     currentValue = 0;
@@ -431,7 +455,7 @@ namespace xabg.GroundScaleSimulator
             {  //递减
                 if (weightScaler == 0)
                 {
-                    currentValue = currentValue - stepValue;
+                    currentValue -= stepValue;
                     if (currentValue <= 0)
                     {
                         currentValue = 0;
@@ -441,7 +465,7 @@ namespace xabg.GroundScaleSimulator
                 else
                 {
                     //递增
-                    currentValue = currentValue + stepValue;
+                    currentValue += stepValue;
                     if (currentValue >= peakValue)
                     {
                         currentValue = peakValue;
@@ -451,8 +475,7 @@ namespace xabg.GroundScaleSimulator
             }
             if (CbxScene.Text == "输入重量")
             {
-                decimal value = 0;
-                decimal.TryParse(key_value, out value);
+                decimal.TryParse(key_value, out decimal value);
                 currentValue = (int)value;
             }
 
@@ -463,7 +486,7 @@ namespace xabg.GroundScaleSimulator
 
             int WeightValue = currentValue;
 
-            if (_xkConfig.SignedNumber == 0x2D)
+            if (_xkConfig.SignedNumber == XK3190DataProtocolConfig.MINUS_SIGN)
             {
                 WeightValue = 0 - WeightValue;
             }
@@ -478,6 +501,8 @@ namespace xabg.GroundScaleSimulator
 
         private void ToledoT880()
         {
+            if (null == _config) return;
+
             int startValue = _config.OutputModeSetting.StartValue;
             int stepValue = _config.OutputModeSetting.StepLength;
             int peakValue = _config.OutputModeSetting.PeakValue;
@@ -492,21 +517,20 @@ namespace xabg.GroundScaleSimulator
             //改变步长值
             if (CbxScene.Text == "模拟装车")
             {
-                int RangeValue;
-                int.TryParse(TbxRangeValue.Text.Trim(), out RangeValue);
+                int.TryParse(TbxRangeValue.Text.Trim(), out int RangeValue);
 
                 int.TryParse(TbxStepLength.Text.Trim(), out stepValue);
                 //生成随机步长
                 int RandomStep = ran.Next(1, RangeValue) * 20;
-                stepValue = stepValue + RandomStep;
+                stepValue += RandomStep;
 
                 //递增
-                currentValue = currentValue + stepValue;
+                currentValue += stepValue;
 
                 if (currentValue >= peakValue)
                 {
                     currentValue = peakValue;
-                    if (timerIndex % 10 == 0)
+                    if (timerIndex % 100 == 0)
                     {
                         timerIndex = 0;
                         return;
@@ -518,7 +542,7 @@ namespace xabg.GroundScaleSimulator
             if (CbxScene.Text == "模拟上磅")
             {
                 //递增
-                currentValue = currentValue + stepValue;
+                currentValue += stepValue;
 
                 if (currentValue >= peakValue)
                 {
@@ -531,7 +555,7 @@ namespace xabg.GroundScaleSimulator
                 //递减
                 if (startValue > 0 && currentValue > 0)
                 {
-                    currentValue = currentValue - stepValue;
+                    currentValue -= stepValue;
                 }
                 else
                     currentValue = 0;
@@ -542,7 +566,7 @@ namespace xabg.GroundScaleSimulator
             {  //递减
                 if (weightScaler == 0)
                 {
-                    currentValue = currentValue - stepValue;
+                    currentValue -= stepValue;
                     if (currentValue <= 0)
                     {
                         currentValue = 0;
@@ -552,7 +576,7 @@ namespace xabg.GroundScaleSimulator
                 else
                 {
                     //递增
-                    currentValue = currentValue + stepValue;
+                    currentValue += stepValue;
                     if (currentValue >= peakValue)
                     {
                         currentValue = peakValue;
@@ -563,8 +587,7 @@ namespace xabg.GroundScaleSimulator
 
             if (CbxScene.Text == "输入重量")
             {
-                decimal value = 0;
-                decimal.TryParse(key_value, out value);
+                decimal.TryParse(key_value, out decimal value);
                 currentValue = (int)value;
             }
 
@@ -578,8 +601,119 @@ namespace xabg.GroundScaleSimulator
             byte SWB = _config.Standard.SWB;
             if ((SWB & 0x02) == 0x02)
             {
-                WeightValue = WeightValue * -1;
+                WeightValue *= -1;
             }
+
+            LledWeightValue.Text = WeightValue.ToString();
+
+            //计数器加1
+            timerIndex++;
+        }
+
+        private void XK3190_CS6()
+        {
+            if (null == _xkCS6Config) return;
+
+            int startValue = _xkCS6Config.OutputModeSetting.StartValue;
+            int stepValue = _xkCS6Config.OutputModeSetting.StepLength;
+            int peakValue = _xkCS6Config.OutputModeSetting.PeakValue;
+            //if (RbtMinus.Checked)
+            //{
+            //    _xkCS6Config.SignedNumber = XK3190_CS6Config.MINUS_SIGN;
+            //}
+            //if (RbtPlus.Checked)
+            //{
+            //    _xkCS6Config.SignedNumber = XK3190_CS6Config.MINUS_SIGN;
+            //}
+            //从起始值开始模拟
+            if (timerIndex == 0)
+            {
+                currentValue = startValue;
+            }
+
+            //改变步长值
+            if (CbxScene.Text == "模拟装车")
+            {
+                int.TryParse(TbxRangeValue.Text.Trim(), out int RangeValue);
+
+                int.TryParse(TbxStepLength.Text.Trim(), out stepValue);
+                //生成随机步长
+                int RandomStep = ran.Next(1, RangeValue) * 20;
+                stepValue += RandomStep;
+
+                //递增
+                currentValue += stepValue;
+
+                if (currentValue >= peakValue)
+                {
+                    currentValue = peakValue;
+                    if (timerIndex % 10 == 0)
+                    {
+                        timerIndex = 0;
+                        return;
+                    }
+                }
+            }
+            //设置数据变化频率
+            if (CbxScene.Text == "模拟上磅")
+            {
+                //递增
+                currentValue += stepValue;
+
+                if (currentValue >= peakValue)
+                {
+                    currentValue = peakValue;
+                }
+            }
+
+            if (CbxScene.Text == "模拟下磅")
+            {
+                //递减
+                if (startValue > 0 && currentValue > 0)
+                {
+                    currentValue -= stepValue;
+                }
+                else
+                    currentValue = 0;
+            }
+
+            if (CbxScene.Text == "模拟上下磅")
+            {  //递减
+                if (weightScaler == 0)
+                {
+                    currentValue -= stepValue;
+                    if (currentValue <= 0)
+                    {
+                        currentValue = 0;
+                        weightScaler = 20;
+                    }
+                }
+                else
+                {
+                    //递增
+                    currentValue += stepValue;
+                    if (currentValue >= peakValue)
+                    {
+                        currentValue = peakValue;
+                        weightScaler--;
+                    }
+                }
+            }
+            if (CbxScene.Text == "输入重量")
+            {
+                decimal.TryParse(key_value, out decimal value);
+                currentValue = (int)value;
+            }
+
+            int WeightValue = currentValue;
+
+            if (_xkCS6Config.SignedNumber == 0x2D && WeightValue > 0)
+            {
+                WeightValue = 0 - WeightValue;
+            }
+            //设置产生的新重量值
+            _xkCS6Protocol.GrossWeight = WeightValue;
+            _xkCS6Protocol.BiludProtocol(_xkCS6Config);
 
             LledWeightValue.Text = WeightValue.ToString();
 
@@ -669,8 +803,7 @@ namespace xabg.GroundScaleSimulator
 
             if (!_ports.IsOpen) return;
 
-            int ival;
-            int.TryParse(tbxFrequency.Text.Trim(), out ival);
+            int.TryParse(tbxFrequency.Text.Trim(), out int ival);
             if (ival == 0) ival = 1000;
             _createDataTimer.Interval = ival;
 
@@ -690,6 +823,9 @@ namespace xabg.GroundScaleSimulator
                 case "INDT880":
                     DataSimulation();
                     break;
+                case "XK3190-CS6":
+                    XK3190CS6Simulation();
+                    break;
                 default:
                     break;
             }
@@ -703,7 +839,7 @@ namespace xabg.GroundScaleSimulator
             _isStart = false;
 
             //LED
-            LledWeightValue.ForeColor = Color.DimGray;
+            LledWeightValue.ForeColor = Color.Silver;
             //数据指示灯
             UlnDataDenote.LanternBackground = Color.DimGray;
 
@@ -722,7 +858,7 @@ namespace xabg.GroundScaleSimulator
             {
                 if (lbColor == UlnDataDenote.LanternBackground)
                 {
-                    UlnDataDenote.LanternBackground = Color.Gray;
+                    UlnDataDenote.LanternBackground = Color.Silver;
                 }
                 else
                 {
@@ -750,6 +886,9 @@ namespace xabg.GroundScaleSimulator
         private void BtnSpace_Click(object sender, EventArgs e)
         {
             KeyInputNumber("-");
+            //设置状态字
+            RbtMinus.Checked = true;
+            RbtPlus.Checked = false;
         }
 
         private void BtnNum1_Click(object sender, EventArgs e)
@@ -766,8 +905,7 @@ namespace xabg.GroundScaleSimulator
             key_value += number;
             if (key_value.Length > 1)
                 key_value = key_value.TrimStart('0');
-            decimal value = 0;
-            decimal.TryParse(key_value, out value);
+            decimal.TryParse(key_value, out decimal value);
 
             if (key_value.Length > LledWeightValue.TotalCharCount)
             {
@@ -833,6 +971,9 @@ namespace xabg.GroundScaleSimulator
             currentValue = 0;
             //计数器归零
             timerIndex = 0;
+            RbtMinus.Checked = false;
+            RbtPlus.Checked = true;
+
             _dataProtocol.GrossWeight = 0;
             _dataProtocol.BiludProtocol(_config);
         }
@@ -874,7 +1015,6 @@ namespace xabg.GroundScaleSimulator
             XK3190DataProtocolConfig xk3190Config = new XK3190DataProtocolConfig();
             if (CbxOutputMode.Text == "标准连续输出")
             {
-                xk3190Config.OutputModeSetting.InOutput = InputOutputMode.StandardOutput;
 
                 //正负号
                 if (RbtMinus.Checked)
@@ -905,38 +1045,112 @@ namespace xabg.GroundScaleSimulator
                 }
 
 
-                //准备数据
-                int startValue;
-                int.TryParse(TbxStartValue.Text.Trim(), out startValue);
+                xk3190Config.OutputModeSetting.InOutput = InputOutputMode.StandardOutput;
 
-                int stepValue;
-                int.TryParse(TbxStepLength.Text.Trim(), out stepValue);
-
-                if (CbxScene.Text == "模拟装车")
-                {
-                    ran = new Random(stepValue);
-                }
-
-                int peakValue;
-                int.TryParse(TbxPeakValue.Text.Trim(), out peakValue);
-
-                xk3190Config.OutputModeSetting.StartValue = startValue;
-                xk3190Config.OutputModeSetting.StepLength = stepValue;
-                xk3190Config.OutputModeSetting.PeakValue = peakValue;
-
-                _xkDataProtocol.GrossWeight = startValue;
-
-                _xkConfig = xk3190Config;
-
-
-                _xkDataProtocol.BiludProtocol(xk3190Config);
-
-                LledWeightValue.Text = _xkDataProtocol.GrossWeight.ToString();
-
-                _simulateTimer.Enabled = true;
-                _createDataTimer.Enabled = true;
             }
+
+            //准备数据
+            int.TryParse(TbxStartValue.Text.Trim(), out int startValue);
+
+            int.TryParse(TbxStepLength.Text.Trim(), out int stepValue);
+
+            if (CbxScene.Text == "模拟装车")
+            {
+                ran = new Random(stepValue);
+            }
+            int.TryParse(TbxPeakValue.Text.Trim(), out int peakValue);
+
+            xk3190Config.OutputModeSetting.StartValue = startValue;
+            xk3190Config.OutputModeSetting.StepLength = stepValue;
+            xk3190Config.OutputModeSetting.PeakValue = peakValue;
+
+            _xkDataProtocol.GrossWeight = startValue;
+
+            _xkConfig = xk3190Config;
+
+
+            _xkDataProtocol.BiludProtocol(xk3190Config);
+
+            LledWeightValue.Text = _xkDataProtocol.GrossWeight.ToString();
+
+            _simulateTimer.Enabled = true;
+            _createDataTimer.Enabled = true;
+
         }
+
+
+        private void XK3190CS6Simulation()
+        {
+            _xkCS6Config = XK3190_CS6Config.DefaultConfig;
+            if (CbxOutputMode.Text == "标准连续输出")
+            {
+                _xkCS6Config.OutputModeSetting.InOutput = InputOutputMode.StandardOutput;
+
+
+            }
+
+            if (CbxOutputMode.Text == "扩展连续输出")
+            {
+                _xkCS6Config.OutputModeSetting.InOutput = InputOutputMode.ExtendOutput;
+
+            }
+
+            //正负号
+            if (RbtMinus.Checked)
+            {
+                _xkCS6Config.SignedNumber = XK3190DataProtocolConfig.MINUS_SIGN;
+                RbtPlus.Checked = false;
+            }
+            if (RbtPlus.Checked)
+            {
+                _xkCS6Config.SignedNumber = XK3190DataProtocolConfig.PLUS_SIGN;
+                RbtMinus.Checked = false;
+            }
+
+            //小数位
+            string IndFac = CbxIndexingFactor.Text;
+            switch (IndFac)
+            {
+                case "X0":
+                    _xkCS6Config.DecimalPlaces = 0;
+                    break;
+                case "X1":
+                    _xkCS6Config.DecimalPlaces = 1;
+                    break;
+                case "X2":
+                    _xkCS6Config.DecimalPlaces = 2;
+                    break;
+                default:
+                    _xkCS6Config.DecimalPlaces = 0;
+                    break;
+            }
+
+
+            //准备数据
+            int.TryParse(TbxStartValue.Text.Trim(), out int startValue);
+
+            int.TryParse(TbxStepLength.Text.Trim(), out int stepValue);
+
+            if (CbxScene.Text == "模拟装车")
+            {
+                ran = new Random(stepValue);
+            }
+
+            int.TryParse(TbxPeakValue.Text.Trim(), out int peakValue);
+
+            _xkCS6Config.OutputModeSetting.StartValue = startValue;
+            _xkCS6Config.OutputModeSetting.StepLength = stepValue;
+            _xkCS6Config.OutputModeSetting.PeakValue = peakValue;
+
+            _xkCS6Protocol.GrossWeight = startValue;
+            _xkCS6Protocol.BiludProtocol(_xkCS6Config);
+            LledWeightValue.Text = _xkDataProtocol.GrossWeight.ToString();
+
+            _simulateTimer.Enabled = true;
+            _createDataTimer.Enabled = true;
+
+        }
+
 
         private void DataSimulation()
         {
@@ -1118,20 +1332,22 @@ namespace xabg.GroundScaleSimulator
                 tdpConfig.OutputModeSetting.InOutput = InputOutputMode.WeightValue;
             }
 
+            if (CbxOutputMode.Text == "SICS Level0")
+            {
+                tdpConfig.OutputModeSetting.InOutput = InputOutputMode.SICSLevel0;
+            }
 
-            int startValue;
-            int.TryParse(TbxStartValue.Text.Trim(), out startValue);
 
-            int stepValue;
-            int.TryParse(TbxStepLength.Text.Trim(), out stepValue);
+            int.TryParse(TbxStartValue.Text.Trim(), out int startValue);
+
+            int.TryParse(TbxStepLength.Text.Trim(), out int stepValue);
 
             if (CbxScene.Text == "模拟装车")
             {
                 ran = new Random(stepValue);
             }
 
-            int peakValue;
-            int.TryParse(TbxPeakValue.Text.Trim(), out peakValue);
+            int.TryParse(TbxPeakValue.Text.Trim(), out int peakValue);
 
 
             tdpConfig.OutputModeSetting.StartValue = startValue;
@@ -1155,7 +1371,10 @@ namespace xabg.GroundScaleSimulator
         //加载配置
         private void LoadConfig(ToledoDataProtocolConfig config)
         {
-
+            if (config is null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
         }
 
         //读取配置
@@ -1174,8 +1393,6 @@ namespace xabg.GroundScaleSimulator
 
         private void CbxBaudrate_KeyPress(object sender, KeyPressEventArgs e)
         {
-            ComboBox cbx = sender as ComboBox;
-
             if ((e.KeyChar < 48 || e.KeyChar > 57) && (e.KeyChar != 46) && e.KeyChar != 8)
             {
                 MessageBox.Show("请输入数字");
