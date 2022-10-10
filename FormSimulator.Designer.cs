@@ -493,6 +493,7 @@
             // 
             this.CbxTruckScalesPro.FormattingEnabled = true;
             this.CbxTruckScalesPro.Items.AddRange(new object[] {
+            "KL-D2000E",
             "XK3190-A9+",
             "XK3190-CS6",
             "INDT880"});
@@ -658,6 +659,7 @@
             "标准格式输入",
             "扩展格式输入",
             "连续输出1",
+            "连续输出TF=2",
             "SICS Level0"});
             this.CbxOutputMode.Location = new System.Drawing.Point(129, 58);
             this.CbxOutputMode.Name = "CbxOutputMode";

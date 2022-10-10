@@ -269,6 +269,14 @@ namespace xabg.GroundScaleSimulator
         /// </summary>
         ExtendOutput,
         /// <summary>
+        /// 连续输出8位ASCII
+        /// </summary>
+        ASCII_8,
+        /// <summary>
+        /// 连续输出9位ASCII
+        /// </summary>
+        ASCII_9,
+        /// <summary>
         /// 标准格式输入
         /// </summary>
         StandardInput,

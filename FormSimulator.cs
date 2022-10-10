@@ -29,7 +29,8 @@ namespace xabg.GroundScaleSimulator
         //XK3190A9P
         private XK3190DataProtocolConfig _xkConfig;
         private XK3190A9P _xkDataProtocol;
-
+        private D2000E_DPCfg _kld2000EDPCfg;
+        private KLD2000E _klD2000EDP;
         //XK3190-CS6
         private XK3190_CS6Config _xkCS6Config;
         private XK3190_CS6 _xkCS6Protocol;
@@ -94,6 +95,14 @@ namespace xabg.GroundScaleSimulator
                                 fmb.SetMessageText(_xkCS6Protocol.ProtocolDataHex);
                         }
                         break;
+                    case "KL-D2000E":
+                        if(null!=_klD2000EDP)
+                        {
+                            _ports.Write(_klD2000EDP.ProtocolData, 0, _klD2000EDP.BufferLength);
+                            if (null != fmb)
+                                fmb.SetMessageText(_klD2000EDP.ProtocolDataHex);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -117,6 +126,7 @@ namespace xabg.GroundScaleSimulator
 
             _xkCS6Protocol = new XK3190_CS6();
 
+            _klD2000EDP = new KLD2000E();
             PowerOff();
         }
 
@@ -384,11 +394,15 @@ namespace xabg.GroundScaleSimulator
                 case "XK3190-CS6":
                     XK3190_CS6();
                     break;
+                case "KL-D2000E":
+                    KLD2000E();
+                    break;
                 default:
                     break;
             }
 
         }
+
 
         private void XK3190A9P()
         {
@@ -721,6 +735,110 @@ namespace xabg.GroundScaleSimulator
             timerIndex++;
         }
 
+        private void KLD2000E()
+        {
+            if (null == _kld2000EDPCfg) return;
+
+            int startValue = _kld2000EDPCfg.OutputModeSetting.StartValue;
+            int stepValue = _kld2000EDPCfg.OutputModeSetting.StepLength;
+            int peakValue = _kld2000EDPCfg.OutputModeSetting.PeakValue;
+
+            //从起始值开始模拟
+            if (timerIndex == 0)
+            {
+                currentValue = startValue;
+            }
+
+            //改变步长值
+            if (CbxScene.Text == "模拟装车")
+            {
+                int.TryParse(TbxRangeValue.Text.Trim(), out int RangeValue);
+
+                int.TryParse(TbxStepLength.Text.Trim(), out stepValue);
+                //生成随机步长
+                int RandomStep = ran.Next(1, RangeValue) * 20;
+                stepValue += RandomStep;
+
+                //递增
+                currentValue += stepValue;
+
+                if (currentValue >= peakValue)
+                {
+                    currentValue = peakValue;
+                    if (timerIndex % 10 == 0)
+                    {
+                        timerIndex = 0;
+                        return;
+                    }
+                }
+            }
+            //设置数据变化频率
+            if (CbxScene.Text == "模拟上磅")
+            {
+                //递增
+                currentValue += stepValue;
+
+                if (currentValue >= peakValue)
+                {
+                    currentValue = peakValue;
+                }
+            }
+
+            if (CbxScene.Text == "模拟下磅")
+            {
+                //递减
+                if (startValue > 0 && currentValue > 0)
+                {
+                    currentValue -= stepValue;
+                }
+                else
+                    currentValue = 0;
+            }
+
+            if (CbxScene.Text == "模拟上下磅")
+            {  //递减
+                if (weightScaler == 0)
+                {
+                    currentValue -= stepValue;
+                    if (currentValue <= 0)
+                    {
+                        currentValue = 0;
+                        weightScaler = 20;
+                    }
+                }
+                else
+                {
+                    //递增
+                    currentValue += stepValue;
+                    if (currentValue >= peakValue)
+                    {
+                        currentValue = peakValue;
+                        weightScaler--;
+                    }
+                }
+            }
+            if (CbxScene.Text == "输入重量")
+            {
+                decimal.TryParse(key_value, out decimal value);
+                currentValue = (int)value;
+            }
+
+            int WeightValue = currentValue;
+
+            if (_kld2000EDPCfg.SignedNumber == 0x2D && WeightValue > 0)
+            {
+                WeightValue = 0 - WeightValue;
+            }
+            //设置产生的新重量值
+            _klD2000EDP.GrossWeight = WeightValue;
+            _klD2000EDP.BiludProtocol(_kld2000EDPCfg);
+
+            LledWeightValue.Text = WeightValue.ToString();
+
+            //计数器加1
+            timerIndex++;
+        }
+
         private void BtnCloseSerialPort_Click(object sender, EventArgs e)
         {
 
@@ -747,6 +865,7 @@ namespace xabg.GroundScaleSimulator
             catch (Exception)
             {
                 //TODO: 输出异常信息
+                MessageBox.Show("串口打开失败。请检查串口是否有效。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
         }
@@ -825,6 +944,9 @@ namespace xabg.GroundScaleSimulator
                     break;
                 case "XK3190-CS6":
                     XK3190CS6Simulation();
+                    break;
+                case "KL-D2000E":
+                    KLD2000ESimulation();
                     break;
                 default:
                     break;
@@ -1007,6 +1129,67 @@ namespace xabg.GroundScaleSimulator
                 _twinkleTimer.Enabled = true;
                 SetDataDenote(Color.Red, true);
             }
+        }
+
+        //柯力  D2000E 型仪表 连续输出 TF=2 格式
+        private void KLD2000ESimulation()
+        {
+            D2000E_DPCfg d2000ecfg = new D2000E_DPCfg();
+            if (CbxOutputMode.Text == "连续输出TF=2")
+            {
+                //正负号
+                if (RbtMinus.Checked)
+                {
+                    d2000ecfg.SignedNumber = XK3190DataProtocolConfig.MINUS_SIGN;
+                }
+                else
+                {
+                    d2000ecfg.SignedNumber = XK3190DataProtocolConfig.PLUS_SIGN;
+                }
+
+                //小数位
+                string IndFac = CbxIndexingFactor.Text;
+                switch (IndFac)
+                {
+                    case "X0":
+                        d2000ecfg.DecimalPlaces = 0;
+                        break;
+                    case "X1":
+                        d2000ecfg.DecimalPlaces = 1;
+                        break;
+                    case "X2":
+                        d2000ecfg.DecimalPlaces = 2;
+                        break;
+                    default:
+                        d2000ecfg.DecimalPlaces = 0;
+                        break;
+                }
+                d2000ecfg.OutputModeSetting.InOutput = InputOutputMode.ASCII_8;
+            }
+            //准备数据
+            int.TryParse(TbxStartValue.Text.Trim(), out int startValue);
+
+            int.TryParse(TbxStepLength.Text.Trim(), out int stepValue);
+
+            if (CbxScene.Text == "模拟装车")
+            {
+                ran = new Random(stepValue);
+            }
+            int.TryParse(TbxPeakValue.Text.Trim(), out int peakValue);
+
+            d2000ecfg.OutputModeSetting.StartValue = startValue;
+            d2000ecfg.OutputModeSetting.StepLength = stepValue;
+            d2000ecfg.OutputModeSetting.PeakValue = peakValue;
+
+            _klD2000EDP.GrossWeight = startValue;
+            _kld2000EDPCfg = d2000ecfg;
+            _klD2000EDP.BiludProtocol(d2000ecfg);
+
+            LledWeightValue.Text = _xkDataProtocol.GrossWeight.ToString();
+
+            _simulateTimer.Enabled = true;
+            _createDataTimer.Enabled = true;
+
         }
 
         //耀华协议

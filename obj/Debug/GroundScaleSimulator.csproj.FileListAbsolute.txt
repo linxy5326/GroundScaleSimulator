@@ -1,0 +1,15 @@
+D:\OpenSource\GroundScaleSimulator\obj\Debug\GroundScaleSimulator.csproj.AssemblyReference.cache
+D:\OpenSource\GroundScaleSimulator\obj\Debug\xabg.GroundScaleSimulator.FormMessageBox.resources
+D:\OpenSource\GroundScaleSimulator\obj\Debug\xabg.GroundScaleSimulator.FormSimulator.resources
+D:\OpenSource\GroundScaleSimulator\obj\Debug\GroundScaleSimulator.csproj.GenerateResource.cache
+D:\OpenSource\GroundScaleSimulator\obj\Debug\GroundScaleSimulator.csproj.CoreCompileInputs.cache
+D:\OpenSource\GroundScaleSimulator\bin\Debug\GroundScaleSimulator.exe
+D:\OpenSource\GroundScaleSimulator\bin\Debug\GroundScaleSimulator.pdb
+D:\OpenSource\GroundScaleSimulator\bin\Debug\MetroFramework.Design.dll
+D:\OpenSource\GroundScaleSimulator\bin\Debug\MetroFramework.dll
+D:\OpenSource\GroundScaleSimulator\bin\Debug\MetroFramework.Fonts.dll
+D:\OpenSource\GroundScaleSimulator\bin\Debug\xabg.Controls.dll
+D:\OpenSource\GroundScaleSimulator\bin\Debug\ILC.Core.dll
+D:\OpenSource\GroundScaleSimulator\obj\Debug\GroundScaleSimulator.csproj.CopyComplete
+D:\OpenSource\GroundScaleSimulator\obj\Debug\GroundScaleSimulator.exe
+D:\OpenSource\GroundScaleSimulator\obj\Debug\GroundScaleSimulator.pdb
