@@ -407,11 +407,11 @@
             this.LledWeightValue.HighlightOpaque = ((byte)(50));
             this.LledWeightValue.Location = new System.Drawing.Point(7, 42);
             this.LledWeightValue.Name = "LledWeightValue";
-            this.LledWeightValue.Size = new System.Drawing.Size(570, 124);
+            this.LledWeightValue.Size = new System.Drawing.Size(571, 140);
             this.LledWeightValue.TabIndex = 0;
             this.LledWeightValue.Text = "0";
             this.LledWeightValue.TextAlignment = LxControl.LxLedControl.Alignment.Right;
-            this.LledWeightValue.TotalCharCount = 9;
+            this.LledWeightValue.TotalCharCount = 8;
             // 
             // UlnDataDenote
             // 
@@ -501,6 +501,7 @@
             this.CbxTruckScalesPro.Name = "CbxTruckScalesPro";
             this.CbxTruckScalesPro.Size = new System.Drawing.Size(168, 20);
             this.CbxTruckScalesPro.TabIndex = 4;
+            this.CbxTruckScalesPro.SelectedIndexChanged += new System.EventHandler(this.CbxTruckScalesPro_SelectedIndexChanged);
             // 
             // BtnSaveSetting
             // 
@@ -658,8 +659,8 @@
             "扩展连续输出",
             "标准格式输入",
             "扩展格式输入",
-            "连续输出1",
             "连续输出TF=2",
+            "连续输出TF=3",
             "SICS Level0"});
             this.CbxOutputMode.Location = new System.Drawing.Point(129, 58);
             this.CbxOutputMode.Name = "CbxOutputMode";
@@ -1532,7 +1533,7 @@
             this.Controls.Add(this.PnlRight);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "FormSimulator";
-            this.Text = "梅特勒.托利多地磅数据模拟器";
+            this.Text = "地磅数据通信模拟器";
             this.MaximumSizeChanged += new System.EventHandler(this.FormSimulator_MaximumSizeChanged);
             this.Load += new System.EventHandler(this.FormSimulator_Load);
             this.LocationChanged += new System.EventHandler(this.FormSimulator_LocationChanged);

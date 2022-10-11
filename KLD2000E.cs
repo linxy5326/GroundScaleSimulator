@@ -61,10 +61,55 @@ namespace xabg.GroundScaleSimulator
                 case InputOutputMode.ASCII_8:
                     ContinuousOutput(config);
                     break;
-                case InputOutputMode.StandardInput:
-
+                case InputOutputMode.ASCII_9:
+                    ContinuousOutputASCII_9(config);
+                    break;
+                case InputOutputMode.StandardOutput:
+                    StandarOutput(config);
                     break;
             }
+        }
+
+        private void StandarOutput(D2000E_DPCfg config)
+        {
+            BufferLength = config.DataLenght;
+            _protocolData = new byte[config.DataLenght];
+            _protocolData[0] = 0x02;
+            _protocolData[11] = 0x03;
+            _protocolData[1] = config.SignedNumber;
+            //小数位，最多不能超过4位
+            _protocolData[8] = (byte)(48 + config.DecimalPlaces);
+
+            //string strWeight = GrossWeight.ToString().PadLeft(6, '0');
+            string strWeight = Math.Abs(GrossWeight).ToString().PadLeft(6, '0');
+            //数据超长
+            if (strWeight.Length > 6)
+            {
+                strWeight = strWeight.Substring(0, 6);
+            }
+
+            byte[] weight = asciiEncoding.GetBytes(strWeight);
+            //复制
+            Array.Copy(weight, 0, _protocolData, 2, weight.Length);
+
+            //校验
+            byte[] crcValue = new byte[2];
+
+            //读出计算校验值的数据
+            byte[] data = new byte[8];
+            Array.Copy(_protocolData, 1, data, 0, data.Length);
+
+            //校验值
+            byte CRCValue = XORCRC(data);
+
+
+            //取高4位
+            byte h = (byte)(((CRCValue & 0xF0) >> 4) + 48);
+            byte l = (byte)((CRCValue & 0x0F) + 48);
+            //取低4位
+
+            _protocolData[9] = h;
+            _protocolData[10] = l;
         }
 
         // 连续输出TF=2 报文格式 2E 30 30 30 30 30 30 3D 
@@ -75,12 +120,42 @@ namespace xabg.GroundScaleSimulator
             _protocolData[0] = STX;
             _protocolData[7] = ETX;
 
-            string strWeight = GrossWeight.ToString().PadLeft(WEIGHTCOUNT, '0');
 
+            string strWeight = Math.Abs(GrossWeight).ToString().PadLeft(5, '0');
             //数据超长
-            if (strWeight.Length > WEIGHTCOUNT)
+            if (strWeight.Length > 5)
             {
-                strWeight = strWeight.Substring(0, WEIGHTCOUNT);
+                strWeight = strWeight.Substring(0, 5);
+            }
+
+            byte[] weight = asciiEncoding.GetBytes(strWeight);
+
+            Array.Reverse(weight);
+            //复制
+            Array.Copy(weight, 0, _protocolData, 1, weight.Length);
+            if (config.SignedNumber == 0x2D)
+            {
+                _protocolData[6] = 0x2D;
+            }
+            else
+            {
+                _protocolData[6] = 0x30;
+            }
+        }
+
+        private void ContinuousOutputASCII_9(D2000E_DPCfg config)
+        {
+            BufferLength =9;
+            _protocolData = new byte[BufferLength];
+            _protocolData[0] = STX;
+            _protocolData[8] = ETX;
+
+            string strWeight = Math.Abs(GrossWeight).ToString().PadLeft(6,'0');
+           
+            //数据超长
+            if (strWeight.Length > 6)
+            {
+                strWeight = strWeight.Substring(0, 6);
             }
 
             byte[] weight = asciiEncoding.GetBytes(strWeight);
@@ -89,10 +164,29 @@ namespace xabg.GroundScaleSimulator
             //复制
             Array.Copy(weight, 0, _protocolData, 1, weight.Length);
 
-            //if (config.SignedNumber == 0x2D)
-            //    _protocolData[6] = config.SignedNumber;
-            //else
-            //    _protocolData[6] = 48;
+            if (config.SignedNumber == 0x2D)
+            {
+                _protocolData[7] = 0x2D;
+            }
+            else
+            {
+                _protocolData[7] = 0x30;
+            }
+        }
+
+        /// <summary>
+        /// 异或校验
+        /// </summary>
+        /// <param name="data">计算校验值的数据</param>
+        /// <returns></returns>
+        public byte XORCRC(byte[] data)
+        {
+            byte xorValue = 0;
+            for (int i = 0; i < data.Length; i++)
+            {
+                xorValue ^= data[i];
+            }
+            return xorValue;
         }
     }
 
@@ -122,7 +216,7 @@ namespace xabg.GroundScaleSimulator
         /// <summary>
         /// 报文长度
         /// </summary>
-        public const int DATA_LENGTH = 8;
+        private  int _dataLenght = 12;
 
         /// <summary>
         /// 小数位
@@ -151,6 +245,11 @@ namespace xabg.GroundScaleSimulator
 
         public static D2000E_DPCfg DefaultConfig { get => _defaultConfig; }
 
+        /// <summary>
+        /// 报文字节数
+        /// </summary>
+        public int DataLenght { get => _dataLenght; set => _dataLenght = value; }
+
         static D2000E_DPCfg()
         {
             if (null == _defaultConfig)
@@ -168,6 +267,7 @@ namespace xabg.GroundScaleSimulator
                     StepLength = 20
                 };
 
+                _defaultConfig.DataLenght = 12;
                 //设置默认小数位
                 _defaultConfig.DecimalPlaces = 0;
                 //正值

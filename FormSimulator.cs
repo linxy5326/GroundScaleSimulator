@@ -96,7 +96,7 @@ namespace xabg.GroundScaleSimulator
                         }
                         break;
                     case "KL-D2000E":
-                        if(null!=_klD2000EDP)
+                        if (null != _klD2000EDP)
                         {
                             _ports.Write(_klD2000EDP.ProtocolData, 0, _klD2000EDP.BufferLength);
                             if (null != fmb)
@@ -1131,41 +1131,58 @@ namespace xabg.GroundScaleSimulator
             }
         }
 
-        //柯力  D2000E 型仪表 连续输出 TF=2 格式
+
+        //柯力  D2000E 型仪表 连续输出TF=0/ TF=2 格式
         private void KLD2000ESimulation()
         {
             D2000E_DPCfg d2000ecfg = new D2000E_DPCfg();
+            //正负号
+            if (RbtMinus.Checked)
+            {
+                d2000ecfg.SignedNumber = XK3190DataProtocolConfig.MINUS_SIGN;
+            }
+            else
+            {
+                d2000ecfg.SignedNumber = XK3190DataProtocolConfig.PLUS_SIGN;
+            }
+
+            //小数位
+            string IndFac = CbxIndexingFactor.Text;
+            switch (IndFac)
+            {
+                case "X0":
+                    d2000ecfg.DecimalPlaces = 0;
+                    break;
+                case "X1":
+                    d2000ecfg.DecimalPlaces = 1;
+                    break;
+                case "X2":
+                    d2000ecfg.DecimalPlaces = 2;
+                    break;
+                default:
+                    d2000ecfg.DecimalPlaces = 0;
+                    break;
+            }
+
+            if (CbxOutputMode.Text == "连续输出TF=0")
+            {
+                d2000ecfg.DataLenght = 12;
+                d2000ecfg.OutputModeSetting.InOutput = InputOutputMode.StandardOutput;
+            }
+
+
             if (CbxOutputMode.Text == "连续输出TF=2")
             {
-                //正负号
-                if (RbtMinus.Checked)
-                {
-                    d2000ecfg.SignedNumber = XK3190DataProtocolConfig.MINUS_SIGN;
-                }
-                else
-                {
-                    d2000ecfg.SignedNumber = XK3190DataProtocolConfig.PLUS_SIGN;
-                }
-
-                //小数位
-                string IndFac = CbxIndexingFactor.Text;
-                switch (IndFac)
-                {
-                    case "X0":
-                        d2000ecfg.DecimalPlaces = 0;
-                        break;
-                    case "X1":
-                        d2000ecfg.DecimalPlaces = 1;
-                        break;
-                    case "X2":
-                        d2000ecfg.DecimalPlaces = 2;
-                        break;
-                    default:
-                        d2000ecfg.DecimalPlaces = 0;
-                        break;
-                }
+                d2000ecfg.DataLenght = 8;
                 d2000ecfg.OutputModeSetting.InOutput = InputOutputMode.ASCII_8;
             }
+
+            if (CbxOutputMode.Text == "连续输出TF=3")
+            {
+                d2000ecfg.DataLenght = 9;
+                d2000ecfg.OutputModeSetting.InOutput = InputOutputMode.ASCII_9;
+            }
+
             //准备数据
             int.TryParse(TbxStartValue.Text.Trim(), out int startValue);
 
@@ -1191,6 +1208,8 @@ namespace xabg.GroundScaleSimulator
             _createDataTimer.Enabled = true;
 
         }
+
+
 
         //耀华协议
         private void XK3190A9Plus()
@@ -1614,6 +1633,12 @@ namespace xabg.GroundScaleSimulator
             {
                 e.Handled = true;
             }
+        }
+
+        private void CbxTruckScalesPro_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //更改仪表型号
+            LblDeviceName.Text = CbxTruckScalesPro.Text;
         }
     }
 }
