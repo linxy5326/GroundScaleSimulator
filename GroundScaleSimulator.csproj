@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="ByteConvert.cs" />
     <Compile Include="KLD2000E.cs" />
+    <Compile Include="ListItem.cs" />
     <Compile Include="XK3190A9P.cs" />
     <Compile Include="Comm.cs" />
     <Compile Include="FormMessageBox.cs">

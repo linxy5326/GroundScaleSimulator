@@ -67,6 +67,11 @@ namespace xabg.GroundScaleSimulator
                 case InputOutputMode.StandardOutput:
                     StandarOutput(config);
                     break;
+                case InputOutputMode.Answering:
+                    AnsweringOutput(config);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -145,13 +150,13 @@ namespace xabg.GroundScaleSimulator
 
         private void ContinuousOutputASCII_9(D2000E_DPCfg config)
         {
-            BufferLength =9;
+            BufferLength = 9;
             _protocolData = new byte[BufferLength];
             _protocolData[0] = STX;
             _protocolData[8] = ETX;
 
-            string strWeight = Math.Abs(GrossWeight).ToString().PadLeft(6,'0');
-           
+            string strWeight = Math.Abs(GrossWeight).ToString().PadLeft(6, '0');
+
             //数据超长
             if (strWeight.Length > 6)
             {
@@ -172,6 +177,19 @@ namespace xabg.GroundScaleSimulator
             {
                 _protocolData[7] = 0x30;
             }
+        }
+
+        private void AnsweringOutput(D2000E_DPCfg config)
+        {
+            //应答报文
+
+            //实现重量应答
+
+            //实现清零
+
+            //实现稳定
+            //实现 串口2连续输出切换
+
         }
 
         /// <summary>
@@ -216,7 +234,7 @@ namespace xabg.GroundScaleSimulator
         /// <summary>
         /// 报文长度
         /// </summary>
-        private  int _dataLenght = 12;
+        private int _dataLenght = 12;
 
         /// <summary>
         /// 小数位

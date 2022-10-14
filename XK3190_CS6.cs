@@ -90,7 +90,7 @@ namespace xabg.GroundScaleSimulator
             _protocolData = new byte[10];
             _protocolData[0] = STX;
 
-           // _protocolData[1] = config.SignedNumber;
+            // _protocolData[1] = config.SignedNumber;
             //小数位，最多不能超过4位
             _protocolData[8] = (byte)(48 + config.DecimalPlaces);
 
@@ -137,8 +137,7 @@ namespace xabg.GroundScaleSimulator
 
             //重量值 
             string strWeight = _grossWeight.ToString().PadLeft(7, ' ');
-
-
+          
             //数据超长
             if (strWeight.Length > 7)
             {
@@ -159,10 +158,10 @@ namespace xabg.GroundScaleSimulator
             _protocolData = new byte[10];
             _protocolData[0] = STX;
 
-           // _protocolData[1] = config.SignedNumber;
+            // _protocolData[1] = config.SignedNumber;
             //小数位，最多不能超过4位
             _protocolData[8] = (byte)(48 + config.DecimalPlaces);
-
+            // string strWeight = Math.Abs(GrossWeight).ToString().PadLeft(6, '0');
             string strWeight = GrossWeight.ToString().PadLeft(6, '0');
 
             //数据超长
@@ -237,7 +236,7 @@ namespace xabg.GroundScaleSimulator
                     ModeName = "XK3190-CS6"
                 };
 
-             
+
             }
         }
 

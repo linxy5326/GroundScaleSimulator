@@ -1,9 +1,12 @@
 ﻿using MetroFramework.Forms;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO.Ports;
+using System.Linq;
 using System.Windows.Forms;
+using xabg.Core;
 
 namespace xabg.GroundScaleSimulator
 {
@@ -72,35 +75,31 @@ namespace xabg.GroundScaleSimulator
                 switch (CbxTruckScalesPro.Text)
                 {
                     case "XK3190-A9+":
-                        if (null != _xkDataProtocol)
+                        if (null != _xkDataProtocol && null != _xkDataProtocol.ProtocolData)
                         {
                             _ports.Write(_xkDataProtocol.ProtocolData, 0, _xkDataProtocol.ProtocolData.Length);
-                            if (null != fmb)
-                                fmb.SetMessageText(_xkDataProtocol.ProtocolDataHex);
+                            fmb?.SetMessageText(_xkDataProtocol.ProtocolDataHex);
                         }
                         break;
                     case "INDT880":
-                        if (null != _xkDataProtocol)
+                        if (null != _dataProtocol && null != _dataProtocol.ProtocolData)
                         {
                             _ports.Write(_dataProtocol.ProtocolData, 0, _dataProtocol.ProtocolData.Length);
-                            if (null != fmb)
-                                fmb.SetMessageText(_dataProtocol.ProtocolDataHex);
+                            fmb?.SetMessageText(_dataProtocol.ProtocolDataHex);
                         }
                         break;
                     case "XK3190-CS6":
-                        if (null != _xkCS6Protocol)
+                        if (null != _xkCS6Protocol && null != _xkCS6Protocol.ProtocolData)
                         {
                             _ports.Write(_xkCS6Protocol.ProtocolData, 0, _xkCS6Protocol.ProtocolData.Length);
-                            if (null != fmb)
-                                fmb.SetMessageText(_xkCS6Protocol.ProtocolDataHex);
+                            fmb?.SetMessageText(_xkCS6Protocol.ProtocolDataHex);
                         }
                         break;
                     case "KL-D2000E":
-                        if (null != _klD2000EDP)
+                        if (null != _klD2000EDP && null != _klD2000EDP.ProtocolData)
                         {
                             _ports.Write(_klD2000EDP.ProtocolData, 0, _klD2000EDP.BufferLength);
-                            if (null != fmb)
-                                fmb.SetMessageText(_klD2000EDP.ProtocolDataHex);
+                            fmb?.SetMessageText(_klD2000EDP.ProtocolDataHex);
                         }
                         break;
                     default:
@@ -372,7 +371,16 @@ namespace xabg.GroundScaleSimulator
 
         private void BtnOpenSerialPort_Click(object sender, EventArgs e)
         {
+            List<ListItem> lit = new List<ListItem> { 
+             new ListItem("1","a"),
+              new ListItem("2","b"),
+               new ListItem("3","c"),
+                new ListItem("4","d"),
+                 new ListItem("5","e"),
+                  new ListItem("6","l")
+            };
 
+            lit.ToLookup(i=>i.Text);
         }
 
 

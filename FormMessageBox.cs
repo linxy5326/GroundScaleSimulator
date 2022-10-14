@@ -16,8 +16,9 @@ namespace xabg.GroundScaleSimulator
 
         public void SetMessageText(string message)
         {
-            if (RxtDataOut.IsDisposed) return;
+            if (string.IsNullOrEmpty(message)) return;
 
+            if (RxtDataOut.IsDisposed) return;
             AppendTextColorFull(message, Color.Black, true);
             RxtDataOut.HideSelection = false;
            // RxtDataOut.Select(message.Length, 0);
@@ -26,6 +27,7 @@ namespace xabg.GroundScaleSimulator
 
         public void SetMessageText(string message, Color foreColor)
         {
+            if (string.IsNullOrEmpty(message)) return;
             if (RxtDataOut.IsDisposed) return;
 
             AppendTextColorFull(message, foreColor, true);
@@ -35,7 +37,6 @@ namespace xabg.GroundScaleSimulator
 
         private void AppendTextColorFull(string text, Color color, bool addNewLine)
         {
-
             if (addNewLine)
             { text += Environment.NewLine; }
             RxtDataOut.SelectionStart = RxtDataOut.TextLength;
